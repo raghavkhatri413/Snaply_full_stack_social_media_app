@@ -1,12 +1,16 @@
 import { formatDateString, multiFormatDateString } from "@/lib/utils";
 import { Models } from "appwrite"
 import { Link } from "react-router-dom";
+import PostStats from "./PostStats";
+import { useUserContext } from "@/context/AuthContext";
 
 type PostCardProps = {
     post: Models.Document;
 }
 
 const PostCard = ({post}:PostCardProps) => {
+
+    const {user} = useUserContext();
   return (
     <div className="post-card">
         <div className="flex-between">
@@ -56,6 +60,8 @@ const PostCard = ({post}:PostCardProps) => {
                 alt="post image"
             />
         </Link>
+
+        <PostStats post={post} userId={user.id}/>
     </div>
   )
 }
