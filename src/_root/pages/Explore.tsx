@@ -1,8 +1,10 @@
-import React from 'react'
-
 const Explore = () => {
   return (
-    <div>Explore</div>
+    <div className="explore-container">
+      <div className="explore-inner_container">
+        <h2 className="h3-bold text-dark-1">Explore</h2>
+      </div>
+    </div>
   )
 }
 
