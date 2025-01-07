@@ -20,14 +20,17 @@ import { CreatePost } from "@/_root/pages"
 import { useToast } from "@/hooks/use-toast"
 import { useNavigate } from "react-router-dom"
 import { useUserContext } from "@/context/AuthContext"
-import { useCreatePost } from "@/lib/react-query/queriesAndMutations"
+import { useCreatePost, useUpdatePost } from "@/lib/react-query/queriesAndMutations"
+import { updatePost } from "@/lib/appwrite/api"
 
 type PostFormProps={
   post?: Models.Document;
+  action: 'Create' | 'Update'
 }
 
-const PostForm = ({post}: PostFormProps) => {
+const PostForm = ({post,action}: PostFormProps) => {
   const {mutateAsync:createPost,isPending:isLoadingCreate}=useCreatePost();
+  const {mutateAsync:updatePost,isPending:isLoadingUpdate}=useUpdatePost();
   const {toast}=useToast();
   const {user}=useUserContext();
   const navigate=useNavigate();
@@ -45,6 +48,22 @@ const PostForm = ({post}: PostFormProps) => {
  
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof PostValidation>) {
+    if(post && action==='Update'){
+      const updatedPost=await updatePost({
+        ...values,
+        postId:post.$id,
+        imageId:post?.imageId,
+        imageUrl:post?.imageUrl,
+      })
+
+      if(!updatedPost){
+        toast({
+          title: 'Please try again',
+          variant:"destructive"
+        })
+      }
+      return navigate(`/posts/${post.$id}`) 
+    }
     const newPost=await createPost({
       ...values,
       userId: user.id,
@@ -135,8 +154,13 @@ const PostForm = ({post}: PostFormProps) => {
             <Button type="button" className="shad-button_dark_4">
                 Cancel
             </Button>
-            <Button type="submit" className="shad-button_primary whitespace-nowrap h-full">
-                Post
+            <Button 
+              type="submit" 
+              className="shad-button_primary whitespace-nowrap h-full"
+              disabled={isLoadingCreate || isLoadingUpdate}
+            >
+              {isLoadingCreate || isLoadingUpdate && 'Loading...'}
+              {action} Post
             </Button>
         </div>
       </form>

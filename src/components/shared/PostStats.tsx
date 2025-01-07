@@ -3,7 +3,7 @@ import { useGetCurrentUser, useLikePost, useSavePost } from "@/lib/react-query/q
 import { useDeleteSavedPost } from "@/lib/react-query/queriesAndMutations";
 import { checkIsLiked } from "@/lib/utils";
 import { Models } from "appwrite"
-import { Loader } from "lucide-react";
+import Loader from "@/components/shared/Loader";
 import React, { useEffect, useState } from "react";
 
 type PostStatsProps={

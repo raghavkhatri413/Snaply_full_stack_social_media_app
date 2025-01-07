@@ -3,7 +3,7 @@ import { Button } from '../ui/button'
 import { useSignOutAccount } from '@/lib/react-query/queriesAndMutations'
 import { useEffect } from 'react';
 import { INITIAL_USER, useUserContext } from '@/context/AuthContext';
-import { Loader } from 'lucide-react';
+import Loader from "@/components/shared/Loader";
 import { INavLink } from '@/types';
 import { sidebarLinks } from '../../constants';
 
