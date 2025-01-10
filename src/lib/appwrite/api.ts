@@ -355,3 +355,16 @@ export async function searchPosts(searchTerm:string){
         console.log(error);
     }
 }
+
+export async function getSavedPosts(){
+    try {
+        const posts=await databases.listDocuments(
+            appwriteConfig.databaseId,
+            appwriteConfig.savesCollectionId,
+        )
+        if(!posts) throw Error;
+        return posts;
+    } catch (error) {
+        console.log(error);
+    }
+}
