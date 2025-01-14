@@ -22,6 +22,7 @@ import { useNavigate } from "react-router-dom"
 import { useUserContext } from "@/context/AuthContext"
 import { useCreatePost, useUpdatePost } from "@/lib/react-query/queriesAndMutations"
 import { updatePost } from "@/lib/appwrite/api"
+import Loader from "../shared/Loader"
 
 type PostFormProps={
   post?: Models.Document;
@@ -163,7 +164,7 @@ const PostForm = ({post,action}: PostFormProps) => {
               className="shad-button_primary whitespace-nowrap h-full"
               disabled={isLoadingCreate || isLoadingUpdate}
             >
-              {isLoadingCreate || isLoadingUpdate && 'Loading...'}
+              {(isLoadingCreate || isLoadingUpdate) && <Loader/>}
               {action} Post
             </Button>
         </div>
