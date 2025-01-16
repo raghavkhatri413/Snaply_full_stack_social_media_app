@@ -124,7 +124,14 @@ const Profile = () => {
       <Routes>
         <Route
           index
-          element={<GridPostList posts={currentUser.posts} showUser={false} />}
+          element={
+            <GridPostList 
+              posts={[...currentUser.posts].sort((a, b) => 
+                new Date(b.$createdAt).getTime() - new Date(a.$createdAt).getTime()
+              )} 
+              showUser={false} 
+            />
+          }
         />
         {currentUser.$id === user.id && (
           <Route path="/liked-posts" element={<LikedPosts />} />

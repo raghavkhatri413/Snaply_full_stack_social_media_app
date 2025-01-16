@@ -2,15 +2,44 @@ import Loader from "@/components/shared/Loader";
 import PostStats from "@/components/shared/PostStats";
 import { Button } from "@/components/ui/button";
 import { useUserContext } from "@/context/AuthContext";
-import { useGetPostById } from "@/lib/react-query/queriesAndMutations"
+import { useGetPostById, useDeletePost } from "@/lib/react-query/queriesAndMutations"
 import { multiFormatDateString } from "@/lib/utils";
-import { Link, useParams } from "react-router-dom"
+import { Link, useParams, useNavigate } from "react-router-dom"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
 
 const PostDetails = () => {
   const { id } = useParams()
   const { data: post, isPending } = useGetPostById(id || '');
   const { user } = useUserContext();
-  const handleDeletePost = () => { }
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { mutateAsync: deletePost, isPending: isLoadingDelete } = useDeletePost();
+  
+  const handleDeletePost = async () => {
+    try {
+      await deletePost({
+        postId: post?.$id || '',
+        imageId: post?.imageId,
+      });
+
+      toast({ title: "Post deleted successfully" });
+      navigate("/");
+    } catch (error) {
+      toast({ title: "Failed to delete post", variant: "destructive" });
+    }
+  };
+
   return (
     <div className="post_details-container">
       {isPending ? <Loader /> : (
@@ -49,16 +78,39 @@ const PostDetails = () => {
                 <Link to={`/update-post/${post?.$id}`} className={`${user?.id !== post?.creator.$id && 'hidden'}`}>
                   <img src="/assets/icons/edit.svg" alt="edit" width={24} height={24} />
                 </Link>
-                <Button
-                  onClick={handleDeletePost}
-                  variant="ghost"
-                  className={`ghost_details-delete_btn ${user?.id !== post?.creator.$id && 'hidden'}`}
-                >
-                  <img src="/assets/icons/delete.svg"
-                    alt="delete"
-                    width={24} height={24}
-                  />
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className={`ghost_details-delete_btn ${user.id !== post?.creator.$id && "hidden"}`}
+                    >
+                      <img 
+                        src="/assets/icons/delete.svg"
+                        alt="delete"
+                        width={24}
+                        height={24}
+                      />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="bg-dark-2 border-none">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="text-light-1">Delete Post</AlertDialogTitle>
+                      <AlertDialogDescription className="text-light-2">
+                        Are you sure you want to delete this post? This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel className="bg-dark-4 text-light-1 hover:bg-dark-4/80">Cancel</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={handleDeletePost} 
+                        disabled={isLoadingDelete}
+                        className="bg-red-500 text-light-1 hover:bg-red-500/80"
+                      >
+                        {isLoadingDelete ? "Deleting..." : "Delete"}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
 
             </div>
