@@ -5,7 +5,7 @@ import {
     useInfiniteQuery,
     Query,
 } from '@tanstack/react-query'
-import { createPost, createUserAccount, deletePost, deleteSavedPost, getCurrentUser, getInfinitePosts, getPostById, getRecentPosts, getSavedPosts, getUserById, getUsers, likePost, savePost, searchPosts, signInAccount, signOutAccount, updatePost, updateUser } from '../appwrite/api'
+import { checkUserExists, createPost, createUserAccount, deletePost, deleteSavedPost, getCurrentUser, getInfinitePosts, getPostById, getRecentPosts, getSavedPosts, getUserById, getUsers, likePost, savePost, searchPosts, signInAccount, signOutAccount, updatePost, updateUser } from '../appwrite/api'
 import { INewPost, INewUser, IUpdatePost, IUpdateUser } from '@/types'
 import { account, databases, appwriteConfig } from '../appwrite/config'
 import { QUERY_KEYS } from './queryKeys'
@@ -16,6 +16,13 @@ export const useCreateUserAccount = () => {
         mutationFn: (user: INewUser) => createUserAccount(user)
     })
 }
+
+export const useCheckUserExists = () => {
+    return useMutation({
+        mutationFn: ({ email, username }: { email: string; username: string }) => 
+            checkUserExists(email, username)
+    });
+};
 
 export const useSignInAccount = () => {
     return useMutation({
@@ -205,34 +212,3 @@ export const useUpdateUser = () => {
         },
     });
 };
-
-export const useCheckUserExists = () => {
-    return useMutation({
-        mutationFn: async ({ email, username }: { email: string; username: string }) => {
-            try {
-                // Check email
-                const emailCheck = await databases.listDocuments(
-                    appwriteConfig.databaseId,
-                    appwriteConfig.userCollectionId,
-                    [AppwriteQuery.equal('email', email)]
-                );
-
-                // Check username
-                const usernameCheck = await databases.listDocuments(
-                    appwriteConfig.databaseId,
-                    appwriteConfig.userCollectionId,
-                    [AppwriteQuery.equal('username', username)]
-                );
-                
-                return {
-                    emailExists: emailCheck.documents.length > 0,
-                    usernameExists: usernameCheck.documents.length > 0
-                };
-            } catch (error) {
-                console.error('Error checking user existence:', error);
-                throw error;
-            }
-        }
-    });
-};
-

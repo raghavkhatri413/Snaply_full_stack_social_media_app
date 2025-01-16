@@ -4,6 +4,37 @@ import { INewPost, INewUser, IUpdatePost, IUpdateUser } from '@/types';
 import { account, appwriteConfig, avatars, databases, storage } from './config';
 import { Query } from 'appwrite';
 
+interface CheckUserResponse {
+    emailExists: boolean;
+    usernameExists: boolean;
+}
+
+export async function checkUserExists(email: string, username: string): Promise<CheckUserResponse> {
+    try {
+        // Check email
+        const emailCheck = await databases.listDocuments(
+            appwriteConfig.databaseId,
+            appwriteConfig.userCollectionId,
+            [Query.equal('email', email)]
+        );
+
+        // Check username
+        const usernameCheck = await databases.listDocuments(
+            appwriteConfig.databaseId,
+            appwriteConfig.userCollectionId,
+            [Query.equal('username', username)]
+        );
+        
+        return {
+            emailExists: emailCheck.documents.length > 0,
+            usernameExists: usernameCheck.documents.length > 0
+        };
+    } catch (error) {
+        console.error('Error checking user existence:', error);
+        throw error;
+    }
+}
+
 export async function createUserAccount(user:INewUser){
     try {
         const newAccount=await account.create(

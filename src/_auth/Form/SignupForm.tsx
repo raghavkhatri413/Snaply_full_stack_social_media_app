@@ -10,7 +10,7 @@ import Loader from "@/components/shared/Loader";
 import { SignupValidation } from "@/lib/validation";
 import { useUserContext } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { useCreateUserAccount, useSignInAccount } from "@/lib/react-query/queriesAndMutations";
+import { useCheckUserExists, useCreateUserAccount } from "@/lib/react-query/queriesAndMutations";
 
 const SignupForm = () => {
   const { toast } = useToast();
@@ -29,41 +29,44 @@ const SignupForm = () => {
 
   // Queries
   const { mutateAsync: createUserAccount, isPending: isCreatingAccount } = useCreateUserAccount();
-  const { mutateAsync: signInAccount, isPending: isSigningInUser } = useSignInAccount();
+  const { mutateAsync: checkUserExists } = useCheckUserExists();
 
   // Handler
   const handleSignup = async (user: z.infer<typeof SignupValidation>) => {
     try {
-      const newUser = await createUserAccount(user);
-
-      if (!newUser) {
-        toast({ title: "Sign up failed. Please try again.", });
-        
-        return;
-      }
-
-      const session = await signInAccount({
-        email: user.email,
-        password: user.password,
+      const userExists = await checkUserExists({ 
+        email: user.email, 
+        username: user.username 
       });
-
-      if (!session) {
-        toast({ title: "Something went wrong. Please login your new account", });
-        
-        navigate("/sign-in");
-        
+  
+      if (userExists.emailExists) {
+        form.setError("email", {
+          message: "This email is already registered"
+        });
         return;
       }
-
+  
+      if (userExists.usernameExists) {
+        form.setError("username", {
+          message: "This username is already taken"
+        });
+        return;
+      }
+  
+      const newUser = await createUserAccount(user);
+  
+      if (!newUser) {
+        toast({ title: "Sign up failed. Please try again." });
+        return;
+      }
+  
       const isLoggedIn = await checkAuthUser();
-
+  
       if (isLoggedIn) {
         form.reset();
-
         navigate("/");
       } else {
-        toast({ title: "Login failed. Please try again.", });
-        
+        toast({ title: "Login failed. Please try again." });
         return;
       }
     } catch (error) {
@@ -74,9 +77,9 @@ const SignupForm = () => {
   return (
     <Form {...form}>
       <div className="sm:w-420 flex-center flex-col">
-        <img src="/assets/images/logo.svg" alt="logo" />
+        <img src="/assets/images/logo2.png" alt="logo" className="w-28 h-28 object-contain"/>
 
-        <h2 className="h3-bold md:h2-bold pt-5 sm:pt-12">
+        <h2 className="h3-bold md:h2-bold">
           Create a new account
         </h2>
         <p className="text-light-3 small-medium md:base-regular mt-2">
@@ -85,7 +88,7 @@ const SignupForm = () => {
 
         <form
           onSubmit={form.handleSubmit(handleSignup)}
-          className="flex flex-col gap-5 w-full mt-4">
+          className="flex flex-col gap-1 w-full">
           <FormField
             control={form.control}
             name="name"
@@ -143,7 +146,7 @@ const SignupForm = () => {
           />
 
           <Button type="submit" className="shad-button_primary">
-            {isCreatingAccount || isSigningInUser || isUserLoading ? (
+            {isCreatingAccount || isUserLoading ? (
               <div className="flex-center gap-2">
                 <Loader /> Loading...
               </div>
@@ -157,7 +160,7 @@ const SignupForm = () => {
             <Link
               to="/sign-in"
               className="text-primary-500 text-small-semibold ml-1">
-              Log in
+              Sign in
             </Link>
           </p>
         </form>

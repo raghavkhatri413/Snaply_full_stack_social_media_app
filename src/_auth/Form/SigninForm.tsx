@@ -27,7 +27,6 @@ const SigninForm = () => {
   const navigate=useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 1. Define your form.
   const form = useForm<z.infer<typeof SigninValidation>>({
     resolver: zodResolver(SigninValidation),
     defaultValues: {
@@ -35,8 +34,6 @@ const SigninForm = () => {
       password: '',
     },
   })
-
-  // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof SigninValidation>) {
     setIsSubmitting(true);
     
@@ -44,10 +41,12 @@ const SigninForm = () => {
       const session = await signInAccount(values);
 
       if(!session){
-        return toast({
-          title: "Sign in failed. Please try again",
-          variant: "destructive"
-        })
+        form.setError('password', {
+          message: 'Invalid email or password'
+        });
+        form.setValue('password', '');
+        
+        return;
       }
 
       const isLoggedIn = await checkAuthUser();
@@ -69,7 +68,7 @@ const SigninForm = () => {
       <Form {...form}>
         <div className="sm:w-420 flex-center flex-col">
           <img src="/assets/images/logo2.png" className="w-28 h-28 object-contain" />
-          <h2 className="h3-bold md:h2-bold">Log in to your account</h2>
+          <h2 className="h3-bold md:h2-bold">Sign in to your account</h2>
           <p className="text-light-3 small-medium md:base-regular mt-2">Welcome back to Snaply, please enter your details</p>
 
 
@@ -102,15 +101,15 @@ const SigninForm = () => {
               )}
             />
 
-            <Button 
-              type="submit" 
-              className="shad-button_primary w-full"
-            >
-              <div className="flex items-center justify-center gap-2">
-                {(isSubmitting || isUserLoading) && <Loader/>}
-                <span>Sign in</span>
+            <Button type="submit" className="shad-button_primary">
+            {isSubmitting || isUserLoading ? (
+              <div className="flex-center gap-2">
+                <Loader /> Loading...
               </div>
-            </Button>
+            ) : (
+              "Sign In"
+            )}
+          </Button>
             
             <p className="text-small-regular text-light-2 text-center mt-2">
               Don't have an account?
