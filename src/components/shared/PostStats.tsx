@@ -1,4 +1,3 @@
-import { useUserContext } from "@/context/AuthContext";
 import { useGetCurrentUser, useLikePost, useSavePost } from "@/lib/react-query/queriesAndMutations";
 import { useDeleteSavedPost } from "@/lib/react-query/queriesAndMutations";
 import { checkIsLiked } from "@/lib/utils";

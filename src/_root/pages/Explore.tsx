@@ -10,11 +10,11 @@ import {useInView} from 'react-intersection-observer'
 const Explore = () => {
   const {data:posts,fetchNextPage,hasNextPage}=useGetPosts();
   const {ref,inView}=useInView();
-  const [searchValue, setSearchValue] = useState('');
+  const [searchValue, setSearchValue] = useState("");
   const debouncedValue=useDebounce(searchValue,500);
-  const {data:searchedPosts,isSearchFetching}=useSearchPosts(debouncedValue)
+  const {data:searchedPosts,isFetching:isSearchFetching}=useSearchPosts(debouncedValue)
   useEffect(()=>{
-    if(inView && !searchValue){ 
+    if(inView && !searchValue){
       fetchNextPage();
     }
   },[inView,searchValue])
@@ -25,10 +25,9 @@ const Explore = () => {
       </div>
     )
   }
-  console.log(posts);
   const shouldShowSearchResults = searchValue !=='';
 
-  const shouldShowPosts = !shouldShowSearchResults && posts.pages.every((item)=>item.documents.length === 0);
+  const shouldShowPosts = !shouldShowSearchResults && posts.pages.every((item)=>item?.documents.length === 0);
   return (
     <div className="explore-container">
       <div className="explore-inner_container">
@@ -45,7 +44,10 @@ const Explore = () => {
             placeholder="Search"
             className="explore-search"
             value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
+            onChange={(e) => {
+              const {value}=e.target;
+              setSearchValue(value);
+            }}
           />
         </div>
       </div>
@@ -53,9 +55,9 @@ const Explore = () => {
         <h2 className="body-bold md:h3-bold">Popular Today</h2>
         <div className="flex-center gap-3 bg-dark-3 rounded-xl px-4 py-2 cursor-pointer">
           <p className="small-medium md:base-semibold text-light-2">All</p>
-          <img src="/assets/icons/filter.svg" alt="filter" width={20} height={20} />
         </div>
       </div>
+
       <div className="flex flex-wrap gap-9 w-full max-w-5xl">
         {shouldShowSearchResults ? (
           <SearchResults 
@@ -64,15 +66,14 @@ const Explore = () => {
           />
         ) : shouldShowPosts ? (
           <p className="text-light-4 mt-10 text-center w-full">End of posts</p>
-        ) : posts.pages.map((item, index) => (
-          <GridPostList 
-            key={`page-${index}`}
-            posts={item.documents}
-          />
-        ))}
+        ) : (
+          posts.pages.map((item, index) => (
+            item && <GridPostList key={`page-${index}`} posts={item.documents} />
+          ))
+        )}
       </div>
       {hasNextPage && !searchValue && (
-        <div ref={ref} className="mt-full">
+        <div ref={ref} className="mt-10">
           <Loader/>
         </div>
       )}

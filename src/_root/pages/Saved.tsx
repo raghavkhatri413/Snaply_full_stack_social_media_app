@@ -1,8 +1,6 @@
 import GridPostList from "@/components/shared/GridPostList";
 import Loader from "@/components/shared/Loader";
-import PostCard from "@/components/shared/PostCard";
-import PostStats from "@/components/shared/PostStats";
-import { useGetCurrentUser, useGetSavedPosts } from "@/lib/react-query/queriesAndMutations";
+import { useGetCurrentUser } from "@/lib/react-query/queriesAndMutations";
 import { Models } from "appwrite";
 
 const Saved = () => {
