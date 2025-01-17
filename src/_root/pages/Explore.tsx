@@ -1,6 +1,5 @@
 import GridPostList from "@/components/shared/GridPostList";
 import Loader from "@/components/shared/Loader";
-import PostStats from "@/components/shared/PostStats";
 import SearchResults from "@/components/shared/SearchResults";
 import { Input } from "@/components/ui/input"
 import useDebounce from "@/hooks/useDebounce";
@@ -13,9 +12,9 @@ const Explore = () => {
   const {ref,inView}=useInView();
   const [searchValue, setSearchValue] = useState('');
   const debouncedValue=useDebounce(searchValue,500);
-  const {data:searchedPosts,isFetching,isSearchFetching}=useSearchPosts(debouncedValue)
+  const {data:searchedPosts,isSearchFetching}=useSearchPosts(debouncedValue)
   useEffect(()=>{
-    if(inView && !searchValue){
+    if(inView && !searchValue){ 
       fetchNextPage();
     }
   },[inView,searchValue])
