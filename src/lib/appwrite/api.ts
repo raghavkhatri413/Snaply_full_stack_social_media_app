@@ -129,7 +129,6 @@ export async function getCurrentUser(){
 export async function signOutAccount(){
     try {
         const session=await account.deleteSession('current');
-        window.location.href = '/';
         return session;
     } catch (error) {
         console.log(error);
