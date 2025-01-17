@@ -1,7 +1,6 @@
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { Button } from '../ui/button'
 import { useSignOutAccount } from '@/lib/react-query/queriesAndMutations'
-import { useEffect } from 'react';
 import { INITIAL_USER, useUserContext } from '@/context/AuthContext';
 import Loader from "@/components/shared/Loader";
 import { INavLink } from '@/types';
