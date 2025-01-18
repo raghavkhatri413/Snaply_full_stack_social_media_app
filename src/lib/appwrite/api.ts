@@ -119,17 +119,28 @@ export async function getCurrentUser(){
     try {
         const currentAccount=await getAccount();
 
-        if(!currentAccount) throw Error;
+        if (!currentAccount) {
+            console.error("No current account found");
+            throw new Error("No current account found");
+        }
 
-        const currentUser=await databases.listDocuments(
-            appwriteConfig.databaseId,
-            appwriteConfig.userCollectionId,
-            [Query.equal("accountId", currentAccount.$id)]
-        )
+        try {
+            const currentUser = await databases.listDocuments(
+                appwriteConfig.databaseId,
+                appwriteConfig.userCollectionId,
+                [Query.equal("accountId", currentAccount.$id)]
+            );
 
-        if(!currentUser) throw Error;
+            if (!currentUser || currentUser.documents.length === 0) {
+                console.error("No user found for the current account");
+                throw new Error("No user found for the current account");
+            }
 
-        return currentUser.documents[0];
+            return currentUser.documents[0];
+        } catch (error) {
+            console.error("Error fetching user:", error);
+            return null;
+        }
     } catch (error) {
         console.log(error);
         return null;
