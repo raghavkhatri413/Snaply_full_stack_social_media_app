@@ -11,6 +11,23 @@ import { SignupValidation } from "@/lib/validation";
 import { useUserContext } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useCheckUserExists, useCreateUserAccount } from "@/lib/react-query/queriesAndMutations";
+import { signInAccount } from "@/lib/appwrite/api";
+
+interface AppwriteUser {
+  $id: string;
+  $createdAt: string;
+  $updatedAt: string;
+  accountId: string;
+  email: string;
+  username: string;
+  name: string;
+  imageUrl: string;
+  bio: string | null;
+  imageId: string | null;
+  posts: string[];
+  liked: string[];
+  save: string[];
+}
 
 const SignupForm = () => {
   const { toast } = useToast();
@@ -53,10 +70,24 @@ const SignupForm = () => {
         return;
       }
   
-      const newUser = await createUserAccount(user);
+      const newUser = await createUserAccount(user) as AppwriteUser;
+      
+      if (!newUser || !newUser.$id) {
+        toast({ 
+          title: "Account created but user ID is missing. Please contact support.",
+          variant: "destructive"
+        });
+        return;
+      }
   
-      if (!newUser) {
-        toast({ title: "Sign up failed. Please try again." });
+      const session = await signInAccount({
+        email: user.email,
+        password: user.password,
+      });
+  
+      if (!session) {
+        toast({ title: "Something went wrong. Please login your new account" });
+        navigate("/sign-in");
         return;
       }
   
@@ -64,13 +95,19 @@ const SignupForm = () => {
   
       if (isLoggedIn) {
         form.reset();
-        navigate("/");
+        
+        // Use $id instead of id
+        navigate(`/update-profile/${newUser.$id}`);
       } else {
         toast({ title: "Login failed. Please try again." });
         return;
       }
     } catch (error) {
       console.log({ error });
+      toast({ 
+        title: "An error occurred during sign up",
+        variant: "destructive"
+      });
     }
   };
 
