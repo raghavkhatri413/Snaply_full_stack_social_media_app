@@ -208,14 +208,13 @@ export async function uploadFile(file: File) {
 
 export function getFileView(fileId: string): URL {
   try {
-    const result = storage.getFileView(appwriteConfig.storageId, fileId);
-    return new URL(result.href); 
+    const urlStr = storage.getFileView(appwriteConfig.storageId, fileId);
+    return new URL(urlStr); 
   } catch (error) {
     console.log(error);
-    return new URL(""); 
+    return new URL("");
   }
 }
-
 
 
 export async function deleteFile(fileId: string) {
