@@ -206,14 +206,16 @@ export async function uploadFile(file: File) {
     }
 }
 
-export function getFileView(fileId: string): string {
+export function getFileView(fileId: string): URL {
   try {
-    return storage.getFileView(appwriteConfig.storageId, fileId).href;
+    const result = storage.getFileView(appwriteConfig.storageId, fileId);
+    return new URL(result.href); 
   } catch (error) {
-    console.error("Failed to get file view:", error);
-    return "";
+    console.log(error);
+    return new URL(""); 
   }
 }
+
 
 
 export async function deleteFile(fileId: string) {
