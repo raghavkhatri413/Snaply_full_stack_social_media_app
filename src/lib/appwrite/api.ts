@@ -47,13 +47,12 @@ export async function createUserAccount(user: INewUser) {
         if (!newAccount) throw Error;
 
         const avatarUrl = avatars.getInitials(user.name);
-        const avatarUrlObject = new URL(avatarUrl);
 
         const newUser = await saveUserToDB({
             accountId: newAccount.$id,
             email: newAccount.email,
             name: newAccount.name,
-            imageUrl: avatarUrlObject,
+            imageUrl: new URL(avatarUrl),
             username: user.username,
         });
         return newUser;
@@ -209,15 +208,13 @@ export async function uploadFile(file: File) {
 
 export function getFileView(fileId: string) {
     try {
-        const fileUrl = storage.getFileView(
-            appwriteConfig.storageId,
-            fileId
-        );
-        return fileUrl;
+        return storage.getFileView(appwriteConfig.storageId, fileId).toString();
     } catch (error) {
         console.log(error);
+        return "";
     }
 }
+
 
 export async function deleteFile(fileId: string) {
     try {
