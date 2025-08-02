@@ -1,17 +1,19 @@
+import { useEffect } from "react";
 import * as z from "zod";
-import Loader from "@/components/shared/Loader";
-import ProfileUploader from "@/components/shared/ProfileUploader";
-import { Button } from "@/components/ui/button";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { useForm, FormProvider } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useNavigate, useParams } from "react-router-dom";
+
+import { ProfileValidation } from "@/lib/validation";
 import { useUserContext } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useGetUserById, useUpdateUser } from "@/lib/react-query/queriesAndMutations";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, FormProvider } from "react-hook-form";
-import { useNavigate, useParams } from "react-router-dom";
-import { ProfileValidation } from "@/lib/validation";
+import Loader from "@/components/shared/Loader";
+import ProfileUploader from "@/components/shared/ProfileUploader";
+import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 const UpdateProfile = () => {
   const { toast } = useToast();
@@ -26,12 +28,24 @@ const UpdateProfile = () => {
     resolver: zodResolver(ProfileValidation),
     defaultValues: {
       file: [],
-      name: currentUser?.name || "",
-      username: currentUser?.username || "",
-      email: currentUser?.email || "",
-      bio: currentUser?.bio || "",
+      name: "",
+      username: "",
+      email: "",
+      bio: "",
     },
   });
+
+  useEffect(() => {
+    if (currentUser) {
+      form.reset({
+        file: [],
+        name: currentUser.name,
+        username: currentUser.username,
+        email: currentUser.email,
+        bio: currentUser.bio || "",
+      });
+    }
+  }, [currentUser, form.reset]);
 
   if (!currentUser)
     return (
@@ -40,7 +54,6 @@ const UpdateProfile = () => {
       </div>
     );
 
-  // Handler
   const handleUpdate = async (value: z.infer<typeof ProfileValidation>) => {
     const updatedUser = await updateUser({
       userId: currentUser.$id,
@@ -50,18 +63,19 @@ const UpdateProfile = () => {
       imageUrl: currentUser.imageUrl,
       imageId: currentUser.imageId,
     });
-
+    
     if (!updatedUser) {
       toast({
         title: `Update user failed. Please try again.`,
       });
+      return;
     }
 
     setUser({
       ...user,
-      name: updatedUser?.name,
-      bio: updatedUser?.bio,
-      imageUrl: updatedUser?.imageUrl,
+      name: updatedUser.name,
+      bio: updatedUser.bio,
+      imageUrl: updatedUser.imageUrl,
     });
     return navigate(`/profile/${id}`);
   };
