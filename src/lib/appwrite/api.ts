@@ -209,7 +209,7 @@ export async function uploadFile(file: File) {
 export function getFileView(fileId: string): URL {
   try {
     const urlStr = storage.getFileView(appwriteConfig.storageId, fileId);
-    const viewUrl = urlStr.replace("/preview", "/view");
+    const viewUrl = urlStr.replace("/preview", "/view"); 
     return new URL(viewUrl); 
   } catch (error) {
     console.log(error);
