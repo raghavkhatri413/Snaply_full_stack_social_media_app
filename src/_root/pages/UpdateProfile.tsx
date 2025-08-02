@@ -11,7 +11,7 @@ import { useGetUserById, useUpdateUser } from "@/lib/react-query/queriesAndMutat
 import Loader from "@/components/shared/Loader";
 import ProfileUploader from "@/components/shared/ProfileUploader";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
